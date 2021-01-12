@@ -7,22 +7,54 @@ class Pawn {
         this.image = image
         this.side = side
         this.name = "pawn"
+        this.moved = false
     }
     draw() {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
     moves() {
-        for (let i = 1; i < 3; i++) {
+        let j = (this.moved) ? 2 : 3
+        for (let i = 1; i < j; i++) {
             game.highlights.push(new Tile(this.x, this.y - (i * this.height), this.width, this.height, move))
             game.highlights.push(new Tile(this.x, this.y + (i * this.height), this.width, this.height, move))
         }
+        valid_pos_pawn()
+        this.attack(this.x, this.y, this.side)
     }
-    attack() {
-        /*game.highlights.push(new Tile(this.x - this.width, this.y - this.height, this.width, this.height, move))
-        game.highlights.push(new Tile(this.x + this.width, this.y - this.height, this.width, this.height, move))
-        game.highlights.push(new Tile(this.x + this.width, this.y + this.height, this.width, this.height, move))
-        game.highlights.push(new Tile(this.x - this.width, this.y + this.height, this.width, this.height, move))*/
+    attack(x, y, side) {
+        game.pieces.forEach(function (obj) {
+            console.log(this)
+            if (((obj.x - obj.width == x && obj.y - obj.height == y) || (obj.x + obj.width == x && obj.y - obj.height == y) || (obj.x - obj.width == x && obj.y + obj.height == y) || (obj.x + obj.width == x && obj.y + obj.height == y)) && obj.side != side) {
+                game.targets.push(obj)
+                game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+            }
+        });
     }
+}
+
+function valid_pos() {
+    game.pieces.forEach(function (obj) {
+        game.highlights.forEach(function (obji, index) {
+            if (obj.x == obji.x && obj.y == obji.y && obj.side == game.selected.side) {
+                console.log(obji)
+                game.highlights.splice(index, 1)
+            }
+        })
+    })
+}
+
+function valid_pos_pawn() {
+    game.pieces.forEach(function (obj) {
+        game.highlights.forEach(function (obji, index) {
+            if (obj.x == obji.x && obj.y == obji.y) {
+                game.highlights.splice(index, 1)
+            }
+        })
+    })
+}
+
+function valid_pos_queenrook() {
+
 }
 
 class Bishop {
@@ -43,6 +75,20 @@ class Bishop {
         game.highlights.push(new Tile(this.x - this.width, this.y + this.height, this.width, this.height, move))
         game.highlights.push(new Tile(this.x + this.width, this.y - this.height, this.width, this.height, move))
         game.highlights.push(new Tile(this.x + this.width, this.y + this.height, this.width, this.height, move))
+        valid_pos()
+        this.attack(this.side)
+    }
+    attack(side) {
+        game.pieces.forEach(function (obj) {
+            game.highlights.forEach(function (obji, index) {
+                console.log(obj == obji && side)
+                if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
+                    game.targets.push(obj)
+                    game.highlights.splice(index, 1)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            })
+        })
     }
 }
 
@@ -63,12 +109,94 @@ class Rook {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
     moves() {
-        for (let i = 1; i <= Game.TILES; i++) {
-            game.highlights.push(new Tile(this.x, this.y - (i * this.height), this.width, this.height, move))
-            game.highlights.push(new Tile(this.x, this.y + (i * this.height), this.width, this.height, move))
-            game.highlights.push(new Tile(this.x - (i * this.height), this.y, this.width, this.height, move))
-            game.highlights.push(new Tile(this.x + (i * this.height), this.y, this.width, this.height, move))
+        let use = this
+        let positions = [
+            [-9999],
+            [9999],
+            [-9999],
+            [9999]
+        ]
+        game.pieces.forEach(function (obj) {
+            if ((obj.x == use.x || obj.y == use.y) && !(obj.x == use.x && obj.y == use.y)) {
+                if (obj.y == use.y && obj.x < use.x && positions[0][0] < obj.x) positions[0] = [obj.x, obj.side]
+                else if (obj.y == use.y && obj.x > use.x && positions[1][0] > obj.x) positions[1] = [obj.x, obj.side]
+                else if (obj.x == use.x && obj.y < use.y && positions[2][0] < obj.y) positions[2] = [obj.y, obj.side]
+                else if (obj.x == use.x && obj.y > use.y && positions[3][0] > obj.y) positions[3] = [obj.y, obj.side]
+            }
+        })
+        if (positions[0].length != 1) {
+            for (let i = 1; i <= ((use.x - positions[0][0]) / use.width); i++) {
+                if (i == ((use.x - positions[0][0]) / use.width)) {
+                    if (use.side != positions[0][1]) {
+                        game.highlights.push(new Tile(positions[0][0], use.y, use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x - (use.width * i), use.y, use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x - (use.width * i), use.y, use.width, use.height, move))
+            }
         }
+        if (positions[1].length != 1) {
+            for (let i = 1; i <= ((positions[1][0] - use.x) / use.width); i++) {
+                if (i == ((positions[1][0] - use.x) / use.width)) {
+                    if (use.side != positions[1][1]) {
+                        game.highlights.push(new Tile(positions[1][0], use.y, use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x + (use.width * i), use.y, use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x + (use.width * i), use.y, use.width, use.height, move))
+            }
+        }
+        if (positions[2].length != 1) {
+            for (let i = 1; i <= ((use.y - positions[2][0]) / use.height); i++) {
+                if (i == ((use.y - positions[2][0]) / use.height)) {
+                    if (use.side != positions[2][1]) {
+                        game.highlights.push(new Tile(use.x, positions[2][0], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x, use.y - (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x, use.y - (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[3].length != 1) {
+            for (let i = 1; i <= ((positions[3][0] - use.y) / use.height); i++) {
+                if (i == ((positions[3][0] - use.y) / use.height)) {
+                    if (use.side != positions[3][1]) {
+                        game.highlights.push(new Tile(use.x, positions[3][0], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x, use.y + (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x, use.y + (use.height * i), use.width, use.height, move))
+            }
+        }
+        this.attack(this.side)
+    }
+    attack(side) {
+        game.pieces.forEach(function (obj) {
+            game.highlights.forEach(function (obji, index) {
+                console.log(obj == obji && side)
+                if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
+                    game.targets.push(obj)
+                    game.highlights.splice(index, 1)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            })
+        })
     }
 }
 
@@ -97,6 +225,20 @@ class Knight {
         game.highlights.push(new Tile(this.x - (2 * this.height), this.y + this.height, this.width, this.height, move))
         game.highlights.push(new Tile(this.x + (2 * this.height), this.y - this.height, this.width, this.height, move))
         game.highlights.push(new Tile(this.x + (2 * this.height), this.y + this.height, this.width, this.height, move))
+        valid_pos()
+        this.attack(this.side)
+    }
+    attack(side) {
+        game.pieces.forEach(function (obj) {
+            game.highlights.forEach(function (obji, index) {
+                console.log(obj == obji && side)
+                if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
+                    game.targets.push(obj)
+                    game.highlights.splice(index, 1)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            })
+        })
     }
 }
 
@@ -117,7 +259,166 @@ class Queen {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
     moves() {
-
+        let use = this
+        let positions = [
+            [-9999],
+            [9999],
+            [-9999],
+            [9999],
+            [9999,9999],
+            [-9999,-9999],
+            [9999,-9999],
+            [-9999,9999]
+        ]
+        game.pieces.forEach(function (obj) {
+            if ((obj.x == use.x || obj.y == use.y) && !(obj.x == use.x && obj.y == use.y)) {
+                if (obj.y == use.y && obj.x < use.x && positions[0][0] < obj.x) positions[0] = [obj.x, obj.side]
+                else if (obj.y == use.y && obj.x > use.x && positions[1][0] > obj.x) positions[1] = [obj.x, obj.side]
+                else if (obj.x == use.x && obj.y < use.y && positions[2][0] < obj.y) positions[2] = [obj.y, obj.side]
+                else if (obj.x == use.x && obj.y > use.y && positions[3][0] > obj.y) positions[3] = [obj.y, obj.side]
+            }
+            if (!(obj.x == use.x && obj.y == use.y)) {
+                for (let i = 1; i <= Game.TILES; i++) {
+                    if (obj.y == use.y + (use.height * i) && obj.x == use.x + (use.width * i) && positions[4][0] > obj.x && positions[4][1] > obj.y) positions[4] = [obj.x, obj.y, obj.side]
+                    else if (obj.y == use.y - (use.height * i) && obj.x == use.x - (use.width * i) && positions[5][0] < obj.x && positions[5][1] < obj.y) positions[5] = [obj.x, obj.y, obj.side]
+                    else if (obj.y == use.y - (use.height * i) && obj.x == use.x + (use.width * i) && positions[6][0] > obj.x && positions[6][1] < obj.y) positions[6] = [obj.x, obj.y, obj.side]
+                    else if (obj.y == use.y + (use.height * i) && obj.x == use.x - (use.width * i) && positions[7][0] < obj.x && positions[7][1] > obj.y) positions[7] = [obj.x, obj.y, obj.side]
+                }
+            }
+        })
+        if (positions[0].length != 1) {
+            for (let i = 1; i <= ((use.x - positions[0][0]) / use.width); i++) {
+                if (i == ((use.x - positions[0][0]) / use.width)) {
+                    if (use.side != positions[0][1]) {
+                        game.highlights.push(new Tile(positions[0][0], use.y, use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x - (use.width * i), use.y, use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x - (use.width * i), use.y, use.width, use.height, move))
+            }
+        }
+        if (positions[1].length != 1) {
+            for (let i = 1; i <= ((positions[1][0] - use.x) / use.width); i++) {
+                if (i == ((positions[1][0] - use.x) / use.width)) {
+                    if (use.side != positions[1][1]) {
+                        game.highlights.push(new Tile(positions[1][0], use.y, use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x + (use.width * i), use.y, use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x + (use.width * i), use.y, use.width, use.height, move))
+            }
+        }
+        if (positions[2].length != 1) {
+            for (let i = 1; i <= ((use.y - positions[2][0]) / use.height); i++) {
+                if (i == ((use.y - positions[2][0]) / use.height)) {
+                    if (use.side != positions[2][1]) {
+                        game.highlights.push(new Tile(use.x, positions[2][0], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x, use.y - (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x, use.y - (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[3].length != 1) {
+            for (let i = 1; i <= ((positions[3][0] - use.y) / use.height); i++) {
+                if (i == ((positions[3][0] - use.y) / use.height)) {
+                    if (use.side != positions[3][1]) {
+                        game.highlights.push(new Tile(use.x, positions[3][0], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x, use.y + (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x, use.y + (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[4].length != 2) {
+            for (let i = 1; i <= ((positions[4][0] - use.x) / use.width); i++) {
+                if (i == ((positions[4][0] - use.x) / use.width)) {
+                    if (use.side != positions[4][2]) {
+                        game.highlights.push(new Tile(positions[4][0], positions[4][1], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x + (use.width * i), use.y + (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x + (use.width * i), use.y + (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[5].length != 2) {
+            for (let i = 1; i <= ((use.x - positions[5][0]) / use.width); i++) {
+                if (i == ((use.x - positions[5][0]) / use.width)) {
+                    if (use.side != positions[5][2]) {
+                        game.highlights.push(new Tile(positions[5][0], positions[5][1], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x - (use.width * i), use.y - (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x - (use.width * i), use.y - (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[6].length != 2) {
+            for (let i = 1; i <= ((positions[6][0] - use.x) / use.width); i++) {
+                if (i == ((positions[6][0] - use.x) / use.width)) {
+                    if (use.side != positions[6][2]) {
+                        game.highlights.push(new Tile(positions[6][0], positions[6][1], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x + (use.width * i), use.y - (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x + (use.width * i), use.y - (use.height * i), use.width, use.height, move))
+            }
+        }
+        if (positions[7].length != 2) {
+            for (let i = 1; i <= ((use.x - positions[7][0]) / use.width); i++) {
+                if (i == ((use.x - positions[7][0]) / use.width)) {
+                    if (use.side != positions[7][2]) {
+                        game.highlights.push(new Tile(positions[7][0], positions[7][1], use.width, use.height, move))
+                    }
+                } else {
+                    game.highlights.push(new Tile(use.x - (use.width * i), use.y + (use.height * i), use.width, use.height, move))
+                }
+            }
+        } else {
+            for (let i = 1; i <= Game.TILES; i++) {
+                game.highlights.push(new Tile(use.x - (use.width * i), use.y + (use.height * i), use.width, use.height, move))
+            }
+        }
+        this.attack(this.side)
+    }
+    attack(side) {
+        game.pieces.forEach(function (obj) {
+            game.highlights.forEach(function (obji, index) {
+                console.log(obj == obji && side)
+                if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
+                    game.targets.push(obj)
+                    game.highlights.splice(index, 1)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            })
+        })
     }
 }
 
@@ -146,6 +447,19 @@ class King {
         game.highlights.push(new Tile(this.x + this.height, this.y, this.width, this.height, move))
         game.highlights.push(new Tile(this.x, this.y - this.height, this.width, this.height, move))
         game.highlights.push(new Tile(this.x, this.y + this.height, this.width, this.height, move))
+        valid_pos()
+        this.attack(this.side)
+    }
+    attack(side) {
+        game.pieces.forEach(function (obj) {
+            game.highlights.forEach(function (obji, index) {
+                if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
+                    game.targets.push(obj)
+                    game.highlights.splice(index, 1)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            })
+        })
     }
 }
 

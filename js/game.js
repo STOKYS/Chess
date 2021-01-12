@@ -10,6 +10,7 @@ class Game {
         this.highlights = []
         this.game_started = false
         this.selected = "";
+        this.targets = []
         this.player = "light"
     }
     start() {
@@ -32,6 +33,7 @@ class Game {
     }
     end() {
         this.pieces = []
+        this.game_started = false
     }
     tiles() {
         for (let i = 0; i < Game.TILES; i++) {
@@ -51,13 +53,10 @@ class Game {
         this.highlights.forEach(function (obj) {
             obj.draw();
         })
-        if (this.highlights.length == 0 && this.selected){
+        if (this.highlights.length == 0 && this.selected) {
             this.selected.moves()
         }
         ctx.drawImage(highlight, mouse.gridX * (canvas.width / Game.TILES), mouse.gridY * (canvas.height / Game.TILES), 200, 200)
-    }
-    next(){
-
     }
 }
 
@@ -70,20 +69,6 @@ let mouse = {
     gridY: 0,
 }
 
-/*function update() {
-    if ((Date.now() - timeOne) >= 10) {
-        timeOne = Date.now()
-        game.cycle()
-        playerup.update()
-        for (let i = 0; i <= 1; i++){
-            obstacles[i].update()
-        }
-    }
-    if (gameover != true){
-        requestAnimationFrame(update)
-    }
-}*/
-
 let timeOne = 0;
 
 function update() {
@@ -91,7 +76,7 @@ function update() {
         timeOne = Date.now()
         game.update()
     }
-    if (game.game_started){
+    if (game.game_started) {
         requestAnimationFrame(update)
     }
 }
@@ -113,15 +98,15 @@ canvas.addEventListener("click", function () {
             if (colision_select(obj)) {
                 game.selected = obj
                 obj.moves()
-                message(`You've selected ${obj.side} ${obj.name}`)
+                message(`${game.selected.side} selected ${obj.side} ${obj.name}`)
             }
         });
         if (game.selected == "") {
-            message(`None were selected`)
+            message(`None`)
         } else {
             console.log(game.selected)
         }
-    } 
+    }
     // this is selecting either a new one or moving the current one
     else if (game.game_started && game.selected != "") {
         let option = colision_option()
@@ -150,38 +135,50 @@ function colision_option() {
     let second = ""
     let high = ""
     let change = false
+    // Select if you want to change to friendly unit
     game.pieces.forEach(function (obj) {
         if (colision_select(obj)) {
+            // second = new unit
             second = obj
         }
     });
+    // Selects highlight which has been clicked 
     game.highlights.forEach(function (obj) {
         if (colision_select(obj)) {
-
+            // high = clicked highlight
             high = obj
         }
     })
-    if (second != "" && high == "" && second.side == game.selected.side){
-        message(`You want to change played`)
+    if (second == "" && high != "" && high.image == attack) {
+        game.targets.forEach(function (obj, index) {
+            game.pieces.forEach(function (obji, indexi) {
+                if (obj.x == high.x && high.x == obji.x && obj.y == high.y && high.y == obji.y && high.side != game.selected.side) {
+                    message(`${game.selected.side} ${game.selected.name} is attacking ${obj.side} ${obj.name}`)
+                    game.selected.x = obj.x
+                    game.selected.y = obj.y
+                    game.pieces.splice(indexi, 1)
+                    game.highlights = []
+                    game.selected = ""
+                    change = true
+                }
+            })
+        });
+    } else if (second != "" && high == "" && second.side == game.selected.side) {
+        message(`${game.selected.side} player changes from ${game.selected.side} ${game.selected.name} to ${second.side} ${second.name}`)
         game.highlights = []
         game.selected = second
         second.moves()
-    }
-    else if (second == "" && high != ""){
+    } else if (second == "" && high != "") {
         change = true
-        message(`You want to change pos`)
+        if (game.selected.name == "pawn") game.selected.moved = true
+        message(`${game.selected.side} player moves ${game.selected.side} ${game.selected.name}`)
         game.highlights = []
         game.selected.x = high.x
         game.selected.y = high.y
         game.selected = ""
     }
     if (change) {
-        /* nefunguje
-
-        ((game.player == "light") ? "dark" : "light")
-        
-        */
-        if (game.player == "light"){
+        if (game.player == "light") {
             game.player = "dark"
         } else {
             game.player = "light"
