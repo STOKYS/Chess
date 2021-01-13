@@ -15,15 +15,18 @@ class Pawn {
     moves() {
         let j = (this.moved) ? 2 : 3
         for (let i = 1; i < j; i++) {
-            game.highlights.push(new Tile(this.x, this.y - (i * this.height), this.width, this.height, move))
-            game.highlights.push(new Tile(this.x, this.y + (i * this.height), this.width, this.height, move))
+            if (game.back || this.side == "light") {
+                game.highlights.push(new Tile(this.x, this.y - (i * this.height), this.width, this.height, move))
+            }
+            if (game.back || this.side == "dark") {
+                game.highlights.push(new Tile(this.x, this.y + (i * this.height), this.width, this.height, move))
+            }
         }
         valid_pos_pawn()
         this.attack(this.x, this.y, this.side)
     }
     attack(x, y, side) {
         game.pieces.forEach(function (obj) {
-            console.log(this)
             if (((obj.x - obj.width == x && obj.y - obj.height == y) || (obj.x + obj.width == x && obj.y - obj.height == y) || (obj.x - obj.width == x && obj.y + obj.height == y) || (obj.x + obj.width == x && obj.y + obj.height == y)) && obj.side != side) {
                 game.targets.push(obj)
                 game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
@@ -36,7 +39,6 @@ function valid_pos() {
     game.pieces.forEach(function (obj) {
         game.highlights.forEach(function (obji, index) {
             if (obj.x == obji.x && obj.y == obji.y && obj.side == game.selected.side) {
-                console.log(obji)
                 game.highlights.splice(index, 1)
             }
         })
@@ -265,10 +267,10 @@ class Queen {
             [9999],
             [-9999],
             [9999],
-            [9999,9999],
-            [-9999,-9999],
-            [9999,-9999],
-            [-9999,9999]
+            [9999, 9999],
+            [-9999, -9999],
+            [9999, -9999],
+            [-9999, 9999]
         ]
         game.pieces.forEach(function (obj) {
             if ((obj.x == use.x || obj.y == use.y) && !(obj.x == use.x && obj.y == use.y)) {

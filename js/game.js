@@ -12,6 +12,10 @@ class Game {
         this.selected = "";
         this.targets = []
         this.player = "light"
+        this.turns = 0
+        this.back = false
+        this.canTurn = true
+        this.killKing = true
     }
     start() {
         this.game_started = true
@@ -57,6 +61,19 @@ class Game {
             this.selected.moves()
         }
         ctx.drawImage(highlight, mouse.gridX * (canvas.width / Game.TILES), mouse.gridY * (canvas.height / Game.TILES), 200, 200)
+        this.win()
+    }
+    win(){
+        let i = [0, "side"];
+        this.pieces.forEach(function (obj) {
+            if (obj.name == "king"){
+                i = [i[0] + 1, obj.side] 
+            } 
+        })
+        if (i[0] < 2){
+            document.getElementById("player").innerText = `${i[1]} player won!`
+            this.game_started = false
+        }
     }
 }
 
@@ -103,8 +120,6 @@ canvas.addEventListener("click", function () {
         });
         if (game.selected == "") {
             message(`None`)
-        } else {
-            console.log(game.selected)
         }
     }
     // this is selecting either a new one or moving the current one
@@ -150,6 +165,7 @@ function colision_option() {
         }
     })
     if (second == "" && high != "" && high.image == attack) {
+        scoreboard()
         game.targets.forEach(function (obj, index) {
             game.pieces.forEach(function (obji, indexi) {
                 if (obj.x == high.x && high.x == obji.x && obj.y == high.y && high.y == obji.y && high.side != game.selected.side) {
@@ -169,6 +185,7 @@ function colision_option() {
         game.selected = second
         second.moves()
     } else if (second == "" && high != "") {
+        scoreboard()
         change = true
         if (game.selected.name == "pawn") game.selected.moved = true
         message(`${game.selected.side} player moves ${game.selected.side} ${game.selected.name}`)
@@ -183,6 +200,16 @@ function colision_option() {
         } else {
             game.player = "light"
         }
+    }
+}
+
+function scoreboard(){
+    game.turns++
+    document.getElementById("turn").innerText = `Turns: ${Math.floor(game.turns / 2)}`
+    if (game.turns % 2 == 1){
+        document.getElementById("player").innerText = `Dark turn`
+    } else {
+        document.getElementById("player").innerText = `Light turn`
     }
 }
 

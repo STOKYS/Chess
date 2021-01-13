@@ -38,3 +38,18 @@ attack.src = "img/attack.png"
 
 const btn_start = document.getElementById("start")
 const btn_end = document.getElementById("end")
+
+document.getElementById("back").addEventListener("click", function(){
+    game.back = !game.back
+    this.innerText = `Can move back: ${game.back}`
+})
+
+document.getElementById("turnpawn").addEventListener("click", function(){
+    game.canTurn = !game.canTurn
+    this.innerText = `Turn pawn on the other end: ${game.canTurn}`
+})
+
+document.getElementById("ending").addEventListener("click", function(){
+    game.killKing = !game.killKing
+    this.innerText = `Turn pawn on the other end: ${game.killKing}`
+})

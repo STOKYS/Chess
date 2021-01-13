@@ -32,6 +32,24 @@ canvas{
     margin: auto;
 }
 
+h1{
+    text-align: center;
+    font-size: 42px;
+    font-weight: 300
+}
+
+h2{
+    text-align: center;
+    font-size: 34px;
+    font-weight: 300
+}
+
+h3{
+    text-align: center;
+    font-size: 28px;
+    font-weight: 300
+}
+
 .game {
     float: left;
     width: 45%;
@@ -46,20 +64,20 @@ canvas{
 
 .info{
     border: 1px solid black;
-    height: 33%;
+    height: 30%;
     width: 95%;
     margin: auto;
 }
 
 .options{
     border: 1px solid black;
-    height: 33%;
+    height: 20.5%;
     width: 95%;
     margin: auto;
 }
 
 .data{
-    height: 33%;
+    height: 48%;
     width: 95%;
     margin: auto; 
 }
@@ -119,3 +137,22 @@ td{
     padding: 15px;
 }
 
+.side_btn{
+    width: 100%
+}
+
+.side_btn>button{
+    width: 33.33%;
+    float: left;
+    padding: 10px
+}
+
+.turning{
+    width: 100%
+}
+
+.turning>button{
+    width: 50%;
+    float: left;
+    padding: 8px;
+}
