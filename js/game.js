@@ -63,14 +63,14 @@ class Game {
         ctx.drawImage(highlight, mouse.gridX * (canvas.width / Game.TILES), mouse.gridY * (canvas.height / Game.TILES), 200, 200)
         this.win()
     }
-    win(){
+    win() {
         let i = [0, "side"];
         this.pieces.forEach(function (obj) {
-            if (obj.name == "king"){
-                i = [i[0] + 1, obj.side] 
-            } 
+            if (obj.name == "king") {
+                i = [i[0] + 1, obj.side]
+            }
         })
-        if (i[0] < 2){
+        if (i[0] < 2) {
             document.getElementById("player").innerText = `${i[1]} player won!`
             this.game_started = false
         }
@@ -203,10 +203,10 @@ function colision_option() {
     }
 }
 
-function scoreboard(){
+function scoreboard() {
     game.turns++
     document.getElementById("turn").innerText = `Turns: ${Math.floor(game.turns / 2)}`
-    if (game.turns % 2 == 1){
+    if (game.turns % 2 == 1) {
         document.getElementById("player").innerText = `Dark turn`
     } else {
         document.getElementById("player").innerText = `Light turn`
@@ -229,4 +229,41 @@ function message(text) {
     let element = document.getElementById("console");
     element.appendChild(para);
     document.getElementById("console").scroll(0, 999999)
+}
+
+function switchPawn(side) {
+    let select = 0
+    let buttons = document.querySelectorAll(".turning > button")
+    for (let i = 0; i < 4; i++) {
+        buttons[i].disabled = false
+    }
+    game.pieces.forEach(function (obj, index) {
+        if (obj.x == game.selected.x && obj.y == game.selected.y) {
+            select = index
+        }
+    })
+    console.log(select, buttons)
+    buttons[0].addEventListener("click", function () {
+        fortnite(select, buttons)
+        game.pieces.push(new Bishop(game.selected.x, game.selected.y, 200, 200, eval(`${side}_bishop`), side))
+    })
+    buttons[1].addEventListener("click", function () {
+        fortnite(select, buttons)
+        game.pieces.push(new Knight(game.selected.x, game.selected.y, canvas.width / Game.TILES, canvas.height / Game.TILES, eval(`${side}_knight`), side))
+    })
+    buttons[2].addEventListener("click", function () {
+        fortnite(select, buttons)
+        game.pieces.push(new Rook(game.selected.x, game.selected.y, canvas.width / Game.TILES, canvas.height / Game.TILES, eval(`${side}_rook`), side))
+    })
+    buttons[3].addEventListener("click", function () {
+        fortnite(select, buttons)
+        game.pieces.push(new Queen(game.selected.x, game.selected.y, canvas.width / Game.TILES, canvas.height / Game.TILES, eval(`${side}_queen`), side))
+    })
+}
+
+function fortnite(select, buttons){
+    game.pieces.splice(select, 1)
+    for (let i = 0; i < 4; i++) {
+        buttons[i].disabled = true
+    }
 }

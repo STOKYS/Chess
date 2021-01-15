@@ -13,6 +13,15 @@ class Pawn {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
     moves() {
+        if (this.side == "light") {
+            if (this.y == 0) {
+                switchPawn("light")
+            }
+        } else {
+            if (this.y == canvas.height - this.height) {
+                switchPawn("dark")
+            }
+        }
         let j = (this.moved) ? 2 : 3
         for (let i = 1; i < j; i++) {
             if (game.back || this.side == "light") {
@@ -27,9 +36,19 @@ class Pawn {
     }
     attack(x, y, side) {
         game.pieces.forEach(function (obj) {
-            if (((obj.x - obj.width == x && obj.y - obj.height == y) || (obj.x + obj.width == x && obj.y - obj.height == y) || (obj.x - obj.width == x && obj.y + obj.height == y) || (obj.x + obj.width == x && obj.y + obj.height == y)) && obj.side != side) {
-                game.targets.push(obj)
-                game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+            if (game.back){
+                if (((obj.x - obj.width == x && obj.y - obj.height == y) || (obj.x + obj.width == x && obj.y - obj.height == y) || (obj.x - obj.width == x && obj.y + obj.height == y) || (obj.x + obj.width == x && obj.y + obj.height == y)) && obj.side != side) {
+                    game.targets.push(obj)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
+            } else {
+                if(side == "light" && ((obj.x - obj.width == x && obj.y + obj.height == y) || (obj.x + obj.width == x && obj.y + obj.height == y)) && side != obj.side){
+                    game.targets.push(obj)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                } else if (side == "dark" && ((obj.x - obj.width == x && obj.y - obj.height == y) || (obj.x + obj.width == x && obj.y - obj.height == y)) && side != obj.side){
+                    game.targets.push(obj)
+                    game.highlights.push(new Tile(obj.x, obj.y, obj.width, obj.height, attack))
+                }
             }
         });
     }
@@ -83,7 +102,6 @@ class Bishop {
     attack(side) {
         game.pieces.forEach(function (obj) {
             game.highlights.forEach(function (obji, index) {
-                console.log(obj == obji && side)
                 if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
                     game.targets.push(obj)
                     game.highlights.splice(index, 1)
@@ -191,7 +209,6 @@ class Rook {
     attack(side) {
         game.pieces.forEach(function (obj) {
             game.highlights.forEach(function (obji, index) {
-                console.log(obj == obji && side)
                 if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
                     game.targets.push(obj)
                     game.highlights.splice(index, 1)
@@ -233,7 +250,6 @@ class Knight {
     attack(side) {
         game.pieces.forEach(function (obj) {
             game.highlights.forEach(function (obji, index) {
-                console.log(obj == obji && side)
                 if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
                     game.targets.push(obj)
                     game.highlights.splice(index, 1)
@@ -413,7 +429,6 @@ class Queen {
     attack(side) {
         game.pieces.forEach(function (obj) {
             game.highlights.forEach(function (obji, index) {
-                console.log(obj == obji && side)
                 if (obj.x == obji.x && obj.y == obji.y && side != obj.side) {
                     game.targets.push(obj)
                     game.highlights.splice(index, 1)
