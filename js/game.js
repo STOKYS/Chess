@@ -18,6 +18,8 @@ class Game {
         this.killKing = true
     }
     start() {
+        // Funkce vytvoří všechny
+        this.end()
         this.game_started = true
         let loc_string = ["light", "dark"]
         for (let i = 0; i < 2; i++) {
@@ -36,6 +38,8 @@ class Game {
         }
     }
     end() {
+        this.turns = 0
+        this.player = "light"
         this.pieces = []
         this.game_started = false
     }
@@ -77,8 +81,10 @@ class Game {
     }
 }
 
+// Vytvoří objekt game podle classy Game
 let game = new Game();
 
+// Objekt ukládá pozice miši
 let mouse = {
     posX: 0,
     posY: 0,
@@ -98,6 +104,7 @@ function update() {
     }
 }
 
+// Event při pohnutí miši, zapíše do objektu mouse, informace o miši
 canvas.addEventListener("mousemove", function (position) {
     if (game.game_started) {
         let space = canvas.getBoundingClientRect();
@@ -108,8 +115,8 @@ canvas.addEventListener("mousemove", function (position) {
     }
 });
 
+// Event na kliknutí uvnitř canvasu
 canvas.addEventListener("click", function () {
-    // This means selecting for the first time
     if (game.game_started && game.selected == "") {
         game.pieces.forEach(function (obj) {
             if (colision_select(obj)) {

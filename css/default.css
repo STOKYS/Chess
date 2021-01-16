@@ -132,3 +132,12 @@ h3{
     float: left;
     padding: 8px;
 }
+
+@media screen and (max-width: 800px) {
+    .game {
+      width: 100%;
+    }
+    .panel {
+        width: 100%;
+    }
+  }
