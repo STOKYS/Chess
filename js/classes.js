@@ -14,11 +14,11 @@ class Pawn {
     }
     moves() {
         if (this.side == "light") {
-            if (this.y == 0) {
+            if (this.y == 0 && game.canTurn) {
                 switchPawn("light")
             }
         } else {
-            if (this.y == canvas.height - this.height) {
+            if (this.y == canvas.height - this.height && game.canTurn) {
                 switchPawn("dark")
             }
         }

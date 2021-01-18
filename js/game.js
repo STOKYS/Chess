@@ -42,6 +42,7 @@ class Game {
         this.player = "light"
         this.pieces = []
         this.game_started = false
+        document.getElementById("console").innerHTML = ''
     }
     tiles() {
         for (let i = 0; i < Game.TILES; i++) {
@@ -75,7 +76,14 @@ class Game {
             }
         })
         if (i[0] < 2) {
-            document.getElementById("player").innerText = `${i[1]} player won!`
+            let text = `${this.player.charAt(0).toUpperCase()}${this.player.slice(1)}`
+            ctx.font = "156px Verdana";
+            ctx.lineWidth = 5;
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "black"
+            ctx.textAlign = "center";
+            ctx.fillText(text + ' won!', canvas.width/2, canvas.height/2);
+            ctx.strokeText(text + ' won!', canvas.width/2, canvas.height/2);
             this.game_started = false
         }
     }
@@ -136,13 +144,9 @@ canvas.addEventListener("click", function () {
 })
 
 btn_start.addEventListener("click", function () {
+    game.end()
     if (!game.game_started) gamestart()
 })
-
-btn_end.addEventListener("click", function () {
-    game.end()
-})
-
 
 function colision_select(obj) {
     if ((obj.x < mouse.posX && (obj.width + obj.x) > mouse.posX && obj.y < mouse.posY && (obj.height + obj.y) > mouse.posY) && ((obj.side == game.player) || obj.name == "highlight")) {
@@ -226,12 +230,13 @@ function gamestart() {
 }
 
 function message(text) {
+    let textF = `${text.charAt(0).toUpperCase()}${text.slice(1)}`
     let d = new Date();
     let h = d.getHours();
     let m = d.getMinutes();
     let s = d.getSeconds();
     let para = document.createElement("p");
-    let node = document.createTextNode(`-- (${((h < 10) ? "0" + h : h) + ":" + ((m < 10) ? "0" + m : m) + ":" + ((s < 10) ? "0" + s : s)}) : [${text}]`);
+    let node = document.createTextNode(`-- (${((h < 10) ? "0" + h : h) + ":" + ((m < 10) ? "0" + m : m) + ":" + ((s < 10) ? "0" + s : s)}) : [${textF}]`);
     para.appendChild(node);
     let element = document.getElementById("console");
     element.appendChild(para);
