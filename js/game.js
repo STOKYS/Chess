@@ -38,6 +38,7 @@ class Game {
         }
     }
     end() {
+        // Resertuje vše
         this.turns = 0
         this.player = "light"
         this.pieces = []
@@ -45,6 +46,7 @@ class Game {
         document.getElementById("console").innerHTML = ''
     }
     tiles() {
+        // Vykreslí šachovnici
         for (let i = 0; i < Game.TILES; i++) {
             for (let j = 0; j < Game.TILES; j++) {
                 let color = ((j + i) % 2 != 0) ? Game.COLOR_DARK : Game.COLOR_LIGHT;
@@ -102,6 +104,7 @@ let mouse = {
 
 let timeOne = 0;
 
+// Update každých 5ms
 function update() {
     if ((Date.now() - timeOne) >= 5) {
         timeOne = Date.now()
